@@ -109,7 +109,7 @@ if args.fileName is not None:
                     
                 elif linia1[i] == 'Train':
                     el = int(el) 
-                    dic[linia1[i]] = el
+                    dic_rep[linia1[i]] = el
                 
                 elif i!=0:
                     dic[linia1[i]] = el
