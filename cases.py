@@ -1,7 +1,8 @@
 
+
+from pydoc import doc
 from pymongo import MongoClient
 import json
-from options import Options
 
 ################################## PARAMETRES DE CONNEXIÓ ###################################
 mongoUser = ''
@@ -66,8 +67,7 @@ CTID: 1
 '''
 
 # Parse options
-opts = Options()
-args = opts.parse()
+
 
 archivo = "cases.csv"
 
@@ -76,7 +76,7 @@ documents_patient = {}
 with open(archivo,"r") as fitxer:
     fitxer.readline()
     for line in fitxer:
-         line = line[:-1].split(';')
+        line = line[:-1].split(';')
         if line[0] not in documents_patient:
             documents_patient[line[0]] = [{'PatientID': line[0],'Age':line[1], 'Gender': line[2], 'Diagnosis_Patient': line[4],
                                           'Nodules': [{
@@ -95,8 +95,10 @@ with open(archivo,"r") as fitxer:
                     'CTID': line[10]}
                 documents_patient[line[0]][0]['Nodules'].append(nodule)
                 documents_patient[line[0]][1].append(line[3])
-                                                                
+                
+                                                      
 for x in documents_patient.values():    
     col_patient.insert_one(x[0])
 # Tanquem les connexions i el tunel
 conn.close()
+
