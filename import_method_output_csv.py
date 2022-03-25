@@ -73,9 +73,6 @@ args = opts.parse()
         'MalignRec': 86.84
         }
        ]}
-mètode2:{
-    ...
-    }
     
 '''
 if args.fileName is not None:
@@ -140,51 +137,3 @@ conn.close()
 
 
 
-'''
-if args.fileName is not None:
-    with open(args.fileName) as fitxer:
-        llista_json = []
-        dic = {}
-        linia1 = fitxer.readline()[3:-1].split(';')
-        #print(linia1)
-        for line in fitxer:
-            line = line[:-1].split(';')
-            trobat = False
-            #print(line)
-            for i,el in enumerate(line):
-                if i == 0 and el not in list(dic.values()):
-                    dic = {}
-                    dic['_id'] = el
-                    trobat = True
-                
-                if trobat == True and i!= 0:
-                    if linia1[i] == 'BenignPrec' or linia1[i] == 'BenignRec' or linia1[i] == 'MalignPrec' or linia1[i] == 'MalignRec':
-                        el = float(el.replace(",","."))
-                    elif linia1[i] == 'Repetition' or linia1[i] == 'Train':
-                        el = int(el)
-                    
-                    dic[linia1[i]] = el
-                  
-                
-                elif linia1[i] == 'Repetition':
-                    llista_json[-1][linia1[i]] = int(llista_json[-1][linia1[i]]) 
-                    llista_json[-1][linia1[i]] += 1
-                    
-                    
-                elif linia1[i] == 'BenignPrec' or linia1[i] == 'BenignRec' or linia1[i] == 'MalignPrec' or linia1[i] == 'MalignRec':
-                    el = el.replace(",",".")
-                    if type(llista_json[-1][linia1[i]]) != type(list()):
-                        llista_json[-1][linia1[i]] = [llista_json[-1][linia1[i]]]
-                    llista_json[-1][linia1[i]].append(float(el))        
-            if trobat == True:
-                llista_json.append(dic)
-        
-        print(llista_json)
-        
-        
-        #llista_json.reverse()# perquè en el mongoDB surtin els mètodes en ordre 
-        for x in llista_json:
-            c.insert_one(x)
-# Tanquem les connexions i el tunel
-conn.close()
-'''
