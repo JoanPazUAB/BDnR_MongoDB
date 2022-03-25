@@ -85,7 +85,7 @@ with open(archivo,"r") as fitxer:
                                               'Diameter': line[9],
                                               'CTID': line[10]}] }, [line[3]]]
         else:
-            if documents_patient[line[3]] not in documents_patient[line[0]][1]:
+            if line[3] not in documents_patient[line[0]][1]:
                 nodule = {
                     'NoduleID': line[3], 
                     'Diagnosis_nodul': line[5], 
