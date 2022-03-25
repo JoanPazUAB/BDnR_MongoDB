@@ -76,6 +76,7 @@ documents_patient = {}
 with open(archivo,"r") as fitxer:
     fitxer.readline()
     for line in fitxer:
+         line = line[:-1].split(';')
         if line[0] not in documents_patient:
             documents_patient[line[0]] = [{'PatientID': line[0],'Age':line[1], 'Gender': line[2], 'Diagnosis_Patient': line[4],
                                           'Nodules': [{
