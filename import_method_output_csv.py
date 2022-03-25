@@ -59,18 +59,19 @@ args = opts.parse()
     FeatDescriptor': 'PyRadiomics', 
     'FeatSelection': 'PCA', 
     'Classifier': 'NN', 
-    'Train': 80
-    'Repetitions': [
+    'Experiments': [
        { Repetition: 1,
         'BenignPrec': 41.18, 
         'BenignRec': 17.07, 
         'MalignPrec': 66.0, 
-        'MalignRec': 86.84},
+        'MalignRec': 86.84,
+        'Train': 80},
        {Repetition: 2,
         'BenignPrec': 41.18, 
         'BenignRec': 17.07, 
         'MalignPrec': 66.0, 
-        'MalignRec': 86.84
+        'MalignRec': 86.84,
+        'Train': 80
         }
        ]}
     
@@ -126,7 +127,6 @@ if args.fileName is not None:
             
             dic_rep = {}               
                 
-        print(llista_json)
         
         
         #llista_json.reverse()# perquè en el mongoDB surtin els mètodes en ordre 
