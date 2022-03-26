@@ -54,83 +54,54 @@ opts = Options()
 args = opts.parse()
 
 '''
+FORMAT 
 
-    {'Method_ID: metode1'
-    FeatDescriptor': 'PyRadiomics', 
+    {'_id': 'Method20', 
+    'FeatDescriptor': 'CNN', 
     'FeatSelection': 'PCA', 
-    'Classifier': 'NN', 
+    'Classifier': 'SVM', 
     'Experiments': [
-       { Repetition: 1,
-        'BenignPrec': 41.18, 
-        'BenignRec': 17.07, 
-        'MalignPrec': 66.0, 
-        'MalignRec': 86.84,
-        'Train': 80},
-       {Repetition: 2,
-        'BenignPrec': 41.18, 
-        'BenignRec': 17.07, 
-        'MalignPrec': 66.0, 
-        'MalignRec': 86.84,
-        'Train': 80
-        }
-       ]}
+    {'Repetition': 1, 'Train': 60, 'BenignPrec': 34.48, 'BenignRec': 97.56, 'MalignPrec': 0.0, 'MalignRec': 0.0}, 
+    {'Repetition': 2, 'Train': 60, 'BenignPrec': 38.64, 'BenignRec': 82.93, 'MalignPrec': 75.86, 'MalignRec': 28.95}, 
+    {'Repetition': 3, 'Train': 60, 'BenignPrec': 27.5, 'BenignRec': 26.83, 'MalignPrec': 61.04, 'MalignRec': 61.84}, 
+    {'Repetition': 4, 'Train': 60, 'BenignPrec': 34.15, 'BenignRec': 34.15, 'MalignPrec': 64.47, 'MalignRec': 64.47}]}
     
 '''
 if args.fileName is not None:
     with open(args.fileName) as fitxer:
-        llista_json = []
-        dic = {}
-        ll_rep = []
-        dic_rep = {}
+        ll_metodes_json = []
+        methods_visitats = []
         linia1 = fitxer.readline()[3:-1].split(';')
 
         #print(linia1)
         for line in fitxer:
             line = line[:-1].split(';')
-            #print(line)
-            for i,el in enumerate(line):
-                
-                if linia1[i] == 'MethodID' and el in list(dic.values()):
-                    metode_trobat = True
-                    
-                
-                elif linia1[i] == 'MethodID' and el not in list(dic.values()):
-                    dic = {}
-                    dic['_id'] = el
-                    metode_trobat = False
 
+            line[6] = float(line[6].replace(",","."))
+            line[7] = float(line[7].replace(",","."))
+            line[8] = float(line[8].replace(",","."))
+            line[9] = float(line[9].replace(",","."))
+            line[5] = int(line[5])
+            line[4] = int(line[4])
                     
-                if linia1[i] == 'BenignPrec' or linia1[i] == 'BenignRec' or linia1[i] == 'MalignPrec' or linia1[i] == 'MalignRec':
-                    el = float(el.replace(",","."))
-                    dic_rep[linia1[i]] = el
+            if line[0] not in methods_visitats:
+                    dic_methods = {}
                     
-                elif linia1[i] == 'Repetition':
-                    el = int(el) 
-                    dic_rep[linia1[i]] = el
                     
-                elif linia1[i] == 'Train':
-                    el = int(el) 
-                    dic_rep[linia1[i]] = el
-                
-                elif i!=0:
-                    dic[linia1[i]] = el
+                    dic_methods = {'_id': line[0], linia1[1]: line[1], linia1[2]: line[2], linia1[3]: line[3],
+                                'Experiments': [{linia1[4]:line[4], linia1[5]:line[5], linia1[6]:line[6], linia1[7]:line[7], 
+                                                 linia1[8]:line[8], linia1[9]:line[9]}]}
+
+                    methods_visitats.append(line[0])
+                    ll_metodes_json.append(dic_methods)
             
-                
-            
-            if metode_trobat == False:
-                 dic['Repeticions'] = [dic_rep]
-                 llista_json.append(dic)
-                 
-                
             else: 
-                llista_json[-1]['Repeticions'].append(dic_rep) 
-            
-            dic_rep = {}               
+                ll_metodes_json[-1]['Experiments'].append({linia1[4]:line[4], linia1[5]:line[5], linia1[6]:line[6], linia1[7]:line[7], 
+                                                 linia1[8]:line[8], linia1[9]:line[9]})
                 
         
-        
-        #llista_json.reverse()# perquè en el mongoDB surtin els mètodes en ordre 
-for x in llista_json:
+
+for x in ll_metodes_json:
     c.insert_one(x)
 # Tanquem les connexions i el tunel
 conn.close()
