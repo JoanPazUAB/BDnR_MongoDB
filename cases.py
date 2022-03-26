@@ -74,12 +74,20 @@ args = opts.parse()
 
 if args.fileName is not None:
      documents_patient = {}
-     with open(archivo,"r") as fitxer:
+     
+     with open(args.fileName) as fitxer:
          fitxer.readline()
          for line in fitxer:
              line = line[:-1].split(';')
+             line[1] = int(line[1])
+             line[3] = int(line[3])
+             line[6] = int(line[6])
+             line[7] = int(line[7])
+             line[8] = int(line[8])
+             line[9] = float(line[9].replace(",","."))
+             line[10] = int(line[10])
              if line[0] not in documents_patient:
-                 documents_patient[line[0]] = [{'PatientID': line[0],'Age':line[1], 'Gender': line[2], 'Diagnosis_Patient': line[4],
+                 documents_patient[line[0]] = [{'_id': line[0],'Age':line[1], 'Gender': line[2], 'Diagnosis_Patient': line[4],
                                                'Nodules': [{
                                                    'NoduleID': line[3], 
                                                    'Diagnosis_nodul': line[5], 
@@ -97,9 +105,9 @@ if args.fileName is not None:
                      documents_patient[line[0]][0]['Nodules'].append(nodule)
                      documents_patient[line[0]][1].append(line[3])
                 
-                                                      
+print(documents_patient.values())                                                      
 for x in documents_patient.values():    
-    col_patient.insert_one(x[0])
+    c.insert_one(x[0])
 # Tanquem les connexions i el tunel
 conn.close()
 
