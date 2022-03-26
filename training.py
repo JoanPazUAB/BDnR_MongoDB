@@ -41,17 +41,18 @@ Carregar les dades des d'unfitxer CSV
 opts = Options()
 args = opts.parse()
 
-archivo = "training.csv"
 
-#if args.fileName is not None:
-training_dict = {}
-with open(archivo,"r") as fitxer:
-    cabecera = fitxer.readline()[:-1].split(",")
-    for line in fitxer:
-            line = line[:-1].split(",")
+if args.fileName is not None:
+    training_dict = {}
+    with open(args.fileName) as fitxer:
+        cabecera = fitxer.readline()[3:-1].split(';')
+        for line in fitxer:
+            line = line[:-1].split(";")
+            if line[0] == '':
+                break
             if line[0] not in training_dict:
-                training_dict[line[0]] = { line[1] : { line[2] : { "Rep" + line[3] : { cabecera[4] : line[4], cabecera[5] : line[5] } } } }    
-            
+                #training_dict[line[0]] = {'_id':line[0], line[1] : { line[2] : { "Rep" + line[3] : { cabecera[4] : line[4], cabecera[5] : line[5] } } } }    
+                training_dict[line[0]] = {line[1] : { line[2] : { "Rep" + line[3] : { cabecera[4] : line[4], cabecera[5] : line[5] } } } } 
             else:
                 if line[1] in training_dict[line[0]]:#si está el tumor
                     if line[2] in training_dict[line[0]][line[1]]: #si está el método
@@ -63,7 +64,7 @@ with open(archivo,"r") as fitxer:
                 
                 else: # no está el tumor
                     training_dict[line[0]][line[1]] = { line[2] : { "Rep" + line[3] : { cabecera[4] : line[4], cabecera[5] : line[5] } } }
-
+print(training_dict)
 for x in training_dict:    
     training_dict[x].update({cabecera[0]:x})
     col_training.insert_one(training_dict[x])
