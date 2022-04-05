@@ -1,0 +1,145 @@
+from pymongo import MongoClient
+import json
+#from options import Options
+
+################################## PARAMETRES DE CONNEXIÓ ###################################
+mongoUser = ''
+mongoPassword = ''
+mongoDB = ''
+
+"""
+1.  Actualitzeu els paràmetres del script NoSQLfromPython.py per poder establir la connexió amb el MongoDB del vostre PC.
+"""
+# En execució remota
+Host = 'localhost' 
+Port = 27017
+
+
+###################################### CONNEXIÓ ##############################################
+
+DSN = "mongodb://{}:{}".format(Host,Port)
+conn = MongoClient(DSN)
+
+#Eliminem la base de dades si ja està creada
+
+
+############################# TRANSFERÈNCIA DE DADES AMB MONGO ##############################
+
+#Selecciona la base de dades a utilitzar
+bd = conn['projecte_BDnR']
+bd.drop_collection('method_OutPut')
+bd.drop_collection('experiments')
+bd.drop_collection('training_patient')
+
+
+"""
+2.	Creeu una col·lecció Prova dins la base de dades test e inseriu 100 documents amb un camp a (a=1 ... a=100).
+"""
+# Creació d'una col·lecció
+c = bd.create_collection('method_OutPut')
+e = bd.create_collection('experiments')
+tp = bd.create_collection('training_patient')
+
+"""
+Carregar les dades des d'unfitxer CSV
+"""
+#Obrir Fitxer CSV
+
+# Parse options
+#opts = Options()
+#args = opts.parse()
+
+''' FORMAT 
+
+ METHODOUT 
+
+{'_id': 'Method19', 
+ 'FeatDescriptor': 'LBP_HoG_PyFirstOrderShape', 
+ 'FeatSelection': 'mRMR', 
+ 'Classifier': 'Logit', 
+ 'Experiments': [{'Method_id': 19, 'Rep': 1}, {'Method_id':19, 'Rep': 2}] }
+
+EXPERIMENTS
+             
+{{'method_id': 19,'Repetition': 1,  
+'Train_percentage': 70, 
+'BenignPrec': 33.33, 
+'BenignRec': 2.44, 
+'MalignPrec': 64.91, 
+'MalignRec': 97.37, 'pacients_experiments' : 
+    ['pacienrt_id_1', 'pacient_id_2'] }} 
+    
+'''
+name = 'MethodOutPut.csv'
+if name is not None:
+    with open(name) as fitxer:
+        ll_metodes_json = []
+        methods_visitats = []
+        linia1 = fitxer.readline()[3:-1].split(';')
+        experiments = []
+        #print(linia1)
+        for line in fitxer:
+            line = line[:-1].split(';')
+
+            line[6] = float(line[6].replace(",","."))
+            line[7] = float(line[7].replace(",","."))
+            line[8] = float(line[8].replace(",","."))
+            line[9] = float(line[9].replace(",","."))
+            line[5] = int(line[5])
+        
+            if line[0] not in methods_visitats:
+                    dic_methods = {}
+                    dic_methods = {'_id': line[0], linia1[1]: line[1], linia1[2]: line[2], linia1[3]: line[3],
+                                'Experiments': [{'method_id': line[0], linia1[4]:line[4]}]}
+                    experiments.append({'method_id': line[0], linia1[4]:line[4], linia1[5]:line[5], linia1[6]:line[6], linia1[7]:line[7], 
+                                                 linia1[8]:line[8], linia1[9]:line[9], 'Pacients_id' : []})
+
+                    methods_visitats.append(line[0])
+                    ll_metodes_json.append(dic_methods)
+            else: 
+                ll_metodes_json[-1]['Experiments'].append({'method_id': line[0],linia1[4]:line[4]})
+                experiments.append({'method_id': line[0], linia1[4]:line[4], linia1[5]:line[5], linia1[6]:line[6], linia1[7]:line[7], 
+                                                 linia1[8]:line[8], linia1[9]:line[9], 'Pacients_id' : []})
+for x in ll_metodes_json:
+    c.insert_one(x)
+
+for ex in experiments:
+    e.insert_one(ex)
+
+training_patient = {}
+name = 'training.csv'
+if name is not None:
+    with open(name) as fitxer:
+        fitxer.readline()
+        for line in fitxer:
+            line = line[:-1].split(';')
+            #line[3] = int(line[3]) 
+            if line[0] not in training_patient:
+                training_patient[line[0]] = [{'Patient_ID': line[0],
+                                            'Nodules': [{
+                                                'NoduleID': line[1], 
+                                                'RadiomicsDiagnosis': line[5], 
+                                                'Training': line[4]
+                                                }]}, [line[1]]]
+            else:
+                if line[1] not in training_patient[line[0]][1]:
+                    nodule = {
+                            'NoduleID': line[1], 
+                            'RadiomicsDiagnosis': line[5], 
+                            'Training': line[4]
+                            }
+    
+                    training_patient[line[0]][0]['Nodules'].append(nodule)
+                    training_patient[line[0]][1].append(line[1])
+            
+            if line[4] == '1': #si es train i NO test
+                e.update_many(
+                { "$and" : [{'method_id':line[2]}, {'Repetition':line[3]}]},
+                {"$addToSet":{'Pacients_id':line[0]}}) 
+            
+for x in training_patient.values():    
+    if x[0]['Patient_ID'] != '': #el csv del training té una línia en blanc; la traiem
+        tp.insert_one(x[0])
+
+# Tanquem les connexions i el tunel
+conn.close()
