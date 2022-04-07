@@ -70,7 +70,6 @@ if args.fileName is not None:
                     
                     c.insert_one(dic_scan) 
                     scanners.append(line[0])
-               
                 
 
             
