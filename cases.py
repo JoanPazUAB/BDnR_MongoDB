@@ -87,21 +87,21 @@ if args.fileName is not None:
              line[9] = float(line[9].replace(",","."))
              line[10] = int(line[10])
              if line[0] not in documents_patient:
-                 documents_patient[line[0]] = [{'_id': line[0],'Age':line[1], 'Gender': line[2], 'Diagnosis_Patient': line[4],
+                 documents_patient[line[0]] = [{'_id': line[0],'Age':line[1], 'Gender': line[2], 'Diagnosis_Patient': line[4], 'CTID': line[10]},
                                                'Nodules': [{
                                                    'NoduleID': line[3], 
                                                    'Diagnosis_nodul': line[5], 
                                                    'Position':{'x':line[6], 'y': line[7], 'z':line[8]},
-                                                   'Diameter': line[9],
-                                                   'CTID': line[10]}] }, [line[3]]]
+                                                   'Diameter': line[9]
+                                                   ] }, [line[3]]]
              else:
                  if line[3] not in documents_patient[line[0]][1]:
                      nodule = {
                          'NoduleID': line[3], 
                          'Diagnosis_nodul': line[5], 
                          'Position':{'x':line[6], 'y': line[7], 'z':line[8]},
-                         'Diameter': line[9],
-                         'CTID': line[10]}
+                         'Diameter': line[9]
+                         }
                      documents_patient[line[0]][0]['Nodules'].append(nodule)
                      documents_patient[line[0]][1].append(line[3])
                 
