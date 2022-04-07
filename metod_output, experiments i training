@@ -143,3 +143,4 @@ for x in training_patient.values():
 
 # Tanquem les connexions i el tunel
 conn.close()
+
