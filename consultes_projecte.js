@@ -1,7 +1,6 @@
 //1. Escàners diferents que hi ha a la BD. Mostra el device.
 db.scanners.aggregate([
-    {$group: {'_id': '$Device'}},
-    {$project:{Device:1}}
+    {$group: {'_id': '$Device'}}
 ])
 
 //2. Número total de nòduls que s’han utilitzat per l’entrenament (train=1) de l’experiment 1 del mètode "Method2”. 
