@@ -17,8 +17,6 @@ db.experiments.aggregate([
          foreignField: "Patient_ID",
          as: 'noduls_pacients'
       }},
-      //{$match:{"noduls_pacients.0.Nodules":{$size:3}}}])
-      //{$project:{noduls_pacients:1}},
        {$unwind:"$noduls_pacients"},
        {$unwind:"$noduls_pacients.Nodules"},
        {$count: 'numProducts'}
@@ -35,7 +33,7 @@ db.method_OutPut.aggregate([
     {$lookup:
        {
          from: "experiments",
-         localField: "Experiments.method_id", //no puc accedir a tota la llista i fer join per això. he de fer joins pe pacients_id
+         localField: "Experiments.method_id", 
          foreignField: "method_id",
          as: "class"
        }},
@@ -86,7 +84,7 @@ db.cases.aggregate([
     {$lookup:
        {
          from: "scanners",
-         localField: "CTID", //no puc accedir a tota la llista i fer join per això. he de fer joins pe pacients_id
+         localField: "CTID", 
          foreignField: "_id",
          as: 'scanners_info'
        }},
