@@ -29,10 +29,10 @@ conn = MongoClient(DSN)
 bd = conn['projecte_BDnR']
 
 #Eliminem la base de dades si ja està creada
-bd.drop_collection('Patient')
+bd.drop_collection('cases')
 
 # creem la colecció Training
-col_patient = bd.create_collection('Patient')
+c = bd.create_collection('cases')
 
 """
 Carregar les dades des d'unfitxer CSV
