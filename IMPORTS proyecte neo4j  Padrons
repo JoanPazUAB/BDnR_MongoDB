@@ -1,0 +1,47 @@
+IMPORT INDIVIDUALS
+LOAD CSV  WITH HEADERS FROM "file:///INDIVIDUAL.csv" AS fila
+WITH toInteger(fila.Id) AS id,
+toInteger(fila.Year) AS year, fila.name AS name,  fila.surname AS surname, 
+fila.second_surname AS second_surname
+MERGE (i:Individu{personId: id})
+set i.year = year, i.name = name,
+i.surname = surname, i.second_surname = second_surname
+return count(i)  
+
+IMPORT HABITATGES
+LOAD CSV  WITH HEADERS FROM "file:///HABITATGES.csv" AS fila
+WITH fila.Municipi AS municipi, toInteger(fila.Id_Llar) AS id_llar,
+toInteger(fila.Any_Padro) AS any_padro, fila.Carrer AS carrer, 
+fila.Numero AS numero
+MERGE (h:Habitatge{id_llar: id_llar, municipi:municipi, any_padro:any_padro,carrer:carrer, numero:numero})
+return count(h)
+ 
+
+IMPORT SAME AS
+LOAD CSV  WITH HEADERS FROM "file:///SAME_AS.csv" AS fila
+WITH toInteger(fila.Id_A) AS id_A, toInteger(fila.Id_B) AS id_B
+MATCH (i:Individu), (i2:Individu)
+WHERE i.personId = id_A AND i2.personId = id_B
+MERGE (i2)-[rel:SAME_AS]->(i)
+RETURN count(rel)
+ 
+
+IMPORT VIU
+LOAD CSV WITH HEADERS FROM 'file:///VIU.csv' AS fila
+WITH toInteger(fila.IND) as ind,
+toInteger(fila.Year) as year,
+toInteger(fila.HOUSE_ID) as house_id,
+fila.Location as location
+MATCH (i : Individu{personId:ind}),(h: Habitatge{id_llar:house_id,any_padro:year })
+MERGE (i)-[rel:VIU]->(h)
+RETURN COUNT(rel)
+ 
+ 
+IMPORT FAMÍLIA
+ 
+LOAD CSV WITH HEADERS FROM 'file:///FAMILIA.csv' AS fila
+WITH toInteger(fila.ID_1) as id_1,toInteger(fila.ID_2) as id_2, fila.Relacio_Harmonitzada as
+relacio_harmonitzada
+MATCH (i1:Individu{personId: id_1}),(i2:Individu{personId: id_2})
+MERGE (i1)-[rel:FAMILIA {relacio_harmonitzada: relacio_harmonitzada}]-(i2)
+RETURN count(rel)
